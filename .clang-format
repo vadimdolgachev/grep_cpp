@@ -1,0 +1,27 @@
+{
+    "BasedOnStyle": "LLVM",
+    "UseTab": "Never",
+    "IndentWidth": 4,
+    "TabWidth": 4,
+    "AlignAfterOpenBracket": "Align",
+    "BreakBeforeBraces": "Custom",
+    "BraceWrapping": {
+        "AfterClass": false,
+        "AfterEnum": false,
+        "AfterStruct": false,
+        "SplitEmptyFunction": false,
+        "BeforeLambdaBody": false
+    },
+    "BreakBeforeBinaryOperators": "All",
+    "AlignOperands": "Align",
+    "IndentCaseLabels": false,
+    "ColumnLimit": 100,
+    "PenaltyBreakBeforeFirstCallParameter": 90,
+    "AccessModifierOffset": -4,
+    "NamespaceIndentation": "All",
+    "FixNamespaceComments": true,
+    "AlwaysBreakAfterReturnType": "All",
+    "SpaceBeforeRangeBasedForLoopColon": false,
+    "AllowAllArgumentsOnNextLine": false,
+    "ContinuationIndentWidth": 8
+}

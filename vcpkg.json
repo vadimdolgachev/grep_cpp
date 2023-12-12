@@ -1,0 +1,9 @@
+{
+  "name": "mtfind",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "boost-format",
+    "boost-algorithm",
+    "boost-program-options"
+  ]
+}

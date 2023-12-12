@@ -1,0 +1,19 @@
+Checks:
+  google-*,
+
+  bugprone-*,
+
+  misc-*,
+  -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+
+  performance-*,
+
+  clang-diagnostic-*,
+  -clang-diagnostic-unused-command-line-argument,
+
+  readability-*,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -readability-identifier-length

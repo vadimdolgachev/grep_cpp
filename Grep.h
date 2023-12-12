@@ -15,16 +15,16 @@
 
 namespace Grep {
     struct Match final {
-        Match(const std::size_t lineNumber,
+        Match(const std::size_t lineCount,
               const std::size_t lineOffset,
               std::string text) :
-                lineNumber(lineNumber),
+                lineCount(lineCount),
                 lineOffset(lineOffset),
                 text(std::move(text)) {
 
         }
 
-        const std::size_t lineNumber;
+        const std::size_t lineCount;
         const std::size_t lineOffset;
         const std::string text;
     };

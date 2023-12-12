@@ -28,8 +28,8 @@ int main(const int argc, char *const argv[]) {
         const auto &matches = Grep::findAllMatches(searchText, filePath);
         std::cout << matches.size() << "\n";
         for (const auto &match : matches) {
-            std::cout << match.lineNumber << " "
-                      << match.lineOffset << " "
+            std::cout << match.lineCount + 1 << " "
+                      << match.lineOffset + 1 << " "
                       << match.text << "\n";
         }
     } catch (const std::ifstream::failure &e) {

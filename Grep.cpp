@@ -14,31 +14,16 @@ constexpr std::size_t MAX_FILE_SIZE_BYTES = 1024UL * 1024 * 1024;
 constexpr std::size_t MAX_SEARCH_TEXT_LENGTH = 1000;
 
 namespace {
-    struct BlockMatchText final {
-        BlockMatchText(std::string text,
-                       const std::size_t numberLine,
-                       const std::size_t lineOffset) :
-                text(std::move(text)),
-                numberLine(numberLine),
-                lineOffset(lineOffset) {
-
-        }
-
-        const std::string text;
-        const std::size_t numberLine;
-        const std::size_t lineOffset;
-    };
-
     struct BlockSearchResult final {
         BlockSearchResult(const std::size_t lineNumbersInBlock,
-                          std::list<BlockMatchText> matches) :
-                lineNumbersInBlock(lineNumbersInBlock),
+                          std::list<Grep::Match> matches) :
+                lineCount(lineNumbersInBlock),
                 matches(std::move(matches)) {
 
         }
 
-        const std::size_t lineNumbersInBlock;
-        const std::list<BlockMatchText> matches;
+        const std::size_t lineCount;
+        const std::list<Grep::Match> matches;
     };
 
     struct SearchRequest final {
@@ -68,32 +53,31 @@ namespace {
     }
 
     inline std::size_t getFileLength(const std::string &fileName) {
-        std::ifstream inputFile = openFile(fileName, std::ios::binary | std::ios::ate);
-        return inputFile.tellg();
+        return openFile(fileName, std::ios::binary | std::ios::ate).tellg();
     }
 
     std::tuple<BlockSearchResult, std::ifstream> findMatches(const SearchRequest &searchRequest, std::ifstream file) {
         file.seekg(searchRequest.startOffset, std::ios::beg);
 
-        std::list<BlockMatchText> matches;
+        std::list<Grep::Match> matches;
         std::size_t lineNumber = 0;
         const std::regex re(searchRequest.regExpText);
-        std::size_t read = 0;
+        std::size_t readChars = 0;
         std::string line;
-        while (read < searchRequest.blockLength && std::getline(file, line, '\n')) {
+        while (readChars < searchRequest.blockLength && std::getline(file, line, '\n')) {
             for (auto it = std::sregex_iterator(line.begin(), line.end(), re);
                  it != std::sregex_iterator();
                  ++it) {
                 const auto &match = *it;
                 if (match.size() > 1) {
                     const auto &matchText = match.str(1);
-                    matches.emplace_back(matchText,
-                                         lineNumber,
-                                         it->position(1));
+                    matches.emplace_back(lineNumber,
+                                         it->position(1),
+                                         matchText);
                 }
             }
 
-            read += line.size() + 1; // length + delimiter
+            readChars += line.size() + 1; // length + delimiter
             lineNumber++;
         }
         return {BlockSearchResult(lineNumber, matches), std::move(file)};
@@ -103,8 +87,8 @@ namespace {
 std::list<Grep::Match> Grep::findAllMatches(const std::string &searchText,
                                             const std::string &filePath,
                                             const std::size_t threadCount) {
-    std::ifstream file = openFile(filePath, std::ios::in);
-    const std::size_t fileSize = getFileLength(filePath);
+    auto file = openFile(filePath, std::ios::in);
+    const auto fileSize = getFileLength(filePath);
     std::cout << "file size: " << fileSize << "\nfile path: '" << filePath << "'\ntext: '" << searchText << "'\n";
 
     if (fileSize > MAX_FILE_SIZE_BYTES) {
@@ -143,10 +127,12 @@ std::list<Grep::Match> Grep::findAllMatches(const std::string &searchText,
             if (filePool.empty()) {
                 filePool.push_back(openFile(filePath, std::ios::in));
             }
+            // first task is executed in thread function other in separate threads
             futures.emplace_back(
-                    std::async(std::launch::async, findMatches, SearchRequest(startOffset,
-                                                                              endOffset - startOffset,
-                                                                              searchText),
+                    std::async(i == 0 ? std::launch::deferred : std::launch::async,
+                               findMatches, SearchRequest(startOffset,
+                                                          endOffset - startOffset,
+                                                          searchText),
                                std::move(filePool.back())));
             filePool.pop_back();
             docPos = endOffset;
@@ -162,11 +148,11 @@ std::list<Grep::Match> Grep::findAllMatches(const std::string &searchText,
 
     std::list<Match> resultMatches;
     for (const auto &result: blocksSearchResult) {
-        assert(result.lineNumbersInBlock > 0);
+        assert(result.lineCount > 0);
         for (const auto &match: result.matches) {
-            resultMatches.emplace_back(docNumberOfLines + match.numberLine + 1, match.lineOffset + 1, match.text);
+            resultMatches.emplace_back(docNumberOfLines + match.lineCount, match.lineOffset, match.text);
         }
-        docNumberOfLines += result.lineNumbersInBlock;
+        docNumberOfLines += result.lineCount;
     }
     std::cout << "total number of lines: " << docNumberOfLines << "\n";
     return resultMatches;

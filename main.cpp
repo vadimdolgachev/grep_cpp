@@ -35,7 +35,7 @@ int main(const int argc, char *const argv[]) {
     } catch (const std::ifstream::failure &e) {
         std::cerr << "error: opening/reading/closing file" << "\n";
         return EXIT_FAILURE;
-    } catch (std::exception &e) {
+    } catch (const std::exception &e) {
         std::cerr << "error: " << e.what() << "\n";
         return EXIT_FAILURE;
     }

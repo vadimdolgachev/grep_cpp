@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 project(mtfind)
 
 set(CMAKE_CXX_STANDARD 17)
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost REQUIRED)
 
 add_executable(mtfind main.cpp
         Grep.cpp
@@ -21,4 +21,4 @@ endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Werror -Wextra")
 
-target_link_libraries(mtfind PRIVATE Boost::program_options)
+target_link_libraries(mtfind PRIVATE Boost::boost)

@@ -4,7 +4,6 @@
   "dependencies": [
     "boost-format",
     "boost-algorithm",
-    "boost-program-options",
     "boost-leaf"
   ]
 }

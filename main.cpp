@@ -2,32 +2,19 @@
 #include <iostream>
 
 #include <boost/leaf/error.hpp>
-#include <boost/program_options.hpp>
 
 #include "Grep.h"
 
-namespace po = boost::program_options;
-
-struct ErrorParseCmdLineArgs {
+struct ErrorParseCmdLineArgs final {
     const std::string text;
 };
 
 boost::leaf::result<std::tuple<std::string, std::string>>
-parseCommandLineArgs(const int argc, char *const argv[]) {
-    po::options_description desc("text finder");
-    desc.add_options()("help", "--file file_path --text 'search text'")(
-            "file", po::value<std::string>()->default_value(""),
-            "input filePath")("text", po::value<std::string>()->default_value(""), "search text");
-
-    po::variables_map optionsVarsMap;
-    po::store(po::parse_command_line(argc, argv, desc), optionsVarsMap);
-    po::notify(optionsVarsMap);
-    const auto &filePath = optionsVarsMap["file"].as<std::string>();
-    const auto &searchText = optionsVarsMap["text"].as<std::string>();
-    if (optionsVarsMap.count("help") > 0 || filePath.empty() || searchText.empty()) {
-        return boost::leaf::new_error(ErrorParseCmdLineArgs{(std::stringstream() << desc).str()});
+parseCommandLineArgs(const int argc, const char *const argv[]) {
+    if (argc != 3) {
+        return boost::leaf::new_error(ErrorParseCmdLineArgs{"error parse input args"});
     }
-    return std::make_tuple(searchText, filePath);
+    return std::make_tuple(argv[2], argv[1]);
 }
 
 int

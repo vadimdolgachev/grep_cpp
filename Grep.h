@@ -26,15 +26,15 @@ namespace Grep {
         const std::string text;
     };
 
-    struct ErrorOpenFile {
+    struct ErrorOpenFile final {
         const std::string text;
     };
 
-    struct ErrorExceededMaxFileSize {
+    struct ErrorExceededMaxFileSize final {
         const std::string text;
     };
 
-    struct ErrorExceededSearchTextSize {
+    struct ErrorExceededSearchTextSize final {
         const std::string text;
     };
 
